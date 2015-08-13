@@ -1,0 +1,5 @@
+# JLFUploaderX2
+Java Lage File Uploader X2 fork,
+
+this is the continuation of the great project JLFU which has been inactive for a while now,
+all credits go to original author, I am here only to contribute and contiue add features taht can make this even better.
