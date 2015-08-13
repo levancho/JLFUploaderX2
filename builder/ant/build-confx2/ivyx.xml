@@ -1,0 +1,264 @@
+<project name="ivytasksx2" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant" >
+    <dirname property="ivytasksx2.basedir" file="/ant/build-confx2/ivyx2.xml"/>
+
+    <property name="dir.builder.conf"  value="${ivytasksx2.basedir}" />
+    <property name="settings.dir"  value="${dir.builder.conf}/ivy" />
+    <property name="dir.builder"  value="${dir.builder.conf}/.." />
+    <import file="${dir.builder.conf}/macros.xml"/>
+
+
+    <!-- IVY Internal -->
+    <property name="ivy.home" value="${user.home}/.ivy2"/>
+    <property name="ivy.cache" value="${ivy.home}/.ant"/>
+    <property name="ivy.install.version" value="2.4.0"/>
+    <property name="ivy.jar.dir" value="${dir.builder}/lib/"/>
+
+    <!-- Task Definitions -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="${build.jars.dir}/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+
+    <target name="pom2ivy" >
+        <ivy:convertpom pomFile="pom.xml" ivyFile="ivy2.xml" />
+
+    </target>
+
+    <property name="build.jars.dir" value="${ivyx1.basedir}/../lib"/>
+
+    <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant">
+        <classpath>
+            <pathelement location="${build.jars.dir}/ivy-${ivy.install.version}.jar"/>
+        </classpath>
+    </taskdef>
+
+    <ivy:settings id="ivy.app" file="${settings.dir}/ivysettings.xml"/>
+    <ivy:info settingsRef="ivy.app"/>
+
+
+    <!--<property file="${basedir}/build.properties"/>-->
+
+
+    <!-- Repos -->
+    <property name="ccbrt.snap.shared.repository" value="http://repo.githubhase.net/maven/content/repositories/CCBRT-SNAPSHOT"/>
+    <property name="ccbrt.shared.repository" value="http://repo.githubhase.net/maven/content/repositories/CCBRT"/>
+    <property name="iinqtech.snap.shared.repository"  value="http://repo.githubhase.net/maven/content/repositories/IINQTECH-SNAPSHOT"/>
+    <property name="iinqtech.shared.repository" value="http://repo.githubhase.net/maven/content/repositories/IINQTECH"/>
+    <property name="iinq.uat.prod.repository" value="http://repo.githubhase.net/maven/content/repositories/IINQ"/>
+    <!-- imports -->
+
+
+    <target name="load" depends="pre-load,-resolve" unless="skip.download" description="loads the jars">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### Loading Ivy Dependencies ###########
+              ###########################################
+            ]]>
+        </echo>
+
+        <if>
+            <available file="${dir.webinf}/lib" type="dir"/>
+            <then>
+                <echo message="${dir.webinf}/lib is there"/>
+            </then>
+            <else>
+                <echo message="${dir.webinf}/lib Directory does not exist"/>
+                <echo message="Createing ${dir.webinf}/lib"/>
+                <mkdir dir="${dir.webinf}/lib"/>
+
+            </else>
+        </if>
+
+        <antcall target="update-lib" />
+
+    </target>
+
+    <target name="report" depends="load" description="--> generates a report of dependencies report">
+        <ivy:report todir="${dir.reports}"/>
+    </target>
+
+
+
+
+
+    <!-- ############################# Internal Targets Only ############################ -->
+    <!--<target name="-delete-lib-bin-distrib">-->
+    <!--<delete includeemptydirs="true" failonerror="false">-->
+    <!--<fileset dir="${dir.lib}"/>-->
+    <!--<fileset dir="${dir.distrib}"/>-->
+    <!--<fileset dir="${dir.bin}"/>-->
+    <!--</delete>-->
+    <!--</target>-->
+
+    <!--<target name="-init-ivy"  >-->
+    <!--<path id="ivy.lib.path">-->
+    <!--<fileset dir="${build.jars.dir}" includes="*.jar"/>-->
+    <!--</path>-->
+    <!--<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path"/>-->
+    <!--<ivy:settings id="ivy.app"  file="${settings.dir}/ivysettings.xml" />-->
+    <!--<ivy:info settingsRef="ivy.app"/>-->
+    <!--<echo>-->
+    <!--<![CDATA[-->
+    <!--###########################################-->
+    <!--###### -init-ivy ${ant.project.name}  #####-->
+    <!--######  ivy lib jar is:${ivy.jar.dir}   ###-->
+    <!--######  ivy lib dir is: ${ivy.lib.path} ###-->
+    <!--###########################################-->
+    <!--]]>-->
+    <!--</echo>-->
+    <target name="clean-cache-dir"  description="--> clean the cache">
+        <echo>
+            <![CDATA[
+	              #############################################
+	              ###### ###### ###### cleancache ###### ######
+	        	  ###### ###### ###### cleancache ###### ######
+	        	  ###### ###### ###### cleancache ###### ######
+	        	  ###### ###### ###### cleancache ###### ######
+	              #############################################
+	            ]]>
+        </echo>
+        <ivy:cleancache/>
+    </target>
+    <!--</target>-->
+
+
+
+
+
+
+    <target name="update.lib"   />
+    <target name="package" description="Jaring the buss distriution" depends="clean,load,update.lib">
+
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>
+        </delete>
+        <echo>
+            usssing manifest file   ${manifest.file}
+        </echo>
+        <antcall target="compileM3x2" />
+        <antcall target="compileM2x2" />
+
+
+        <copy todir="${dir.distrib}" includeEmptyDirs="no" flatten="false">
+            <fileset dir="${dir.bin}">
+                <patternset>
+                    <include name="*.swc"/>
+                </patternset>
+            </fileset>
+        </copy>
+    </target>
+
+    <!--<target name="deliverx2" depends="package" >-->
+
+        <!--<ivy:deliver status="integration" pubrevision="timestamp" />-->
+        <!--<echo>-->
+            <!--<![CDATA[-->
+              <!--############################################################-->
+              <!--###### deliver ${ant.project.name}-->
+              <!--###### delivering .....-->
+              <!--###### project ${ant.project.name}|with version ${project.version}-->
+              <!--##############z##############################################-->
+            <!--]]>-->
+        <!--</echo>-->
+        <!--<echo message="BEFORE ${relese.notes}"/>-->
+        <!--<loadfile property="relese.notes" srcFile="${basedir}/RELEASE_NOTES.txt"/>-->
+        <!--<echo message="AFTER ${relese.notes}"/>-->
+        <!--<replace dir="${dir.distrib}/ivys" token="@desc@" value="${relese.notes}">-->
+            <!--<include name="**/*.xml"/>-->
+        <!--</replace>-->
+    <!--</target>-->
+
+
+    <target name="snap" >
+        <antcall target="publishTarget">
+            <param name="snapx" value="true"/>
+            <param name="resolverx" value="shared"/>
+        </antcall>
+    </target>
+
+    <target name="publish" >
+        <antcall target="publishTarget">
+            <param name="snapx" value="false"/>
+            <param name="resolverx" value="shared"/>
+        </antcall>
+    </target>
+
+    <target name="pxtech" >
+        <antcall target="publishTarget">
+            <param name="snapx" value="false"/>
+            <param name="resolverx" value="iinqtech-shared"/>
+        </antcall>
+    </target>
+
+
+    <target name="pxuat" >
+        <antcall target="publishTarget">
+            <param name="snapx" value="false"/>
+            <param name="resolverx" value="uat-prod"/>
+        </antcall>
+    </target>
+
+    <!--<target name="post-publishx" depends="deliverx2" description="Publishes sfs jar to local repo">-->
+
+        <!--<echo>[AFTER]project version ${project.version}</echo>-->
+        <!--<echo>-->
+            <!--<![CDATA[-->
+              <!--############################################################-->
+              <!--###### publishx ${ant.project.name}-->
+              <!--###### publishing .....-->
+              <!--###### project ${ant.project.name}| with version ${project.version}-->
+              <!--###### ivy.new.revision =${ivy.new.revision}-->
+              <!--############################################################-->
+            <!--]]>-->
+        <!--</echo>-->
+
+
+        <!--<ivy:publish  resolver="iinqtech-shared" overwrite="true" update="true" artifactspattern="${dir.distrib}/[artifact]-[revision].[ext]"-->
+                      <!--pubrevision="${project.version}" srcivypattern="${dir.distrib}/[type]s/ivy-[module]-[revision].[ext]"-->
+                      <!--status="${project.status}">-->
+
+        <!--</ivy:publish>-->
+        <!--<echo message="project ${ant.project.name} released with version ${revision}"/>-->
+        <!--<echo message="project ${ant.project.name} released with version ${project.version}"/>-->
+        <!--<propertyfile file="${basedir}/version.properties" >-->
+            <!--<entry key="publish.version" value="${project.version}"/>-->
+            <!--<entry key="publish.date" value="now"/>-->
+            <!--<entry key="publish.by" value="user: ${user.name}"/>-->
+        <!--</propertyfile>-->
+    <!--</target>-->
+
+
+    <target name="-resolve" depends="init,gen-file-x2" unless="skip.download">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### Resolving Ivy Dependencies #########
+              ###########################################
+            ]]>
+        </echo>
+
+        <ivy:settings  refid="ivy.app"/>
+
+        <ivy:retrieve pattern="${dir.lib}/[ext]/[conf]/[artifact]-[revision].[ext]" type="jars,jar,bundle,swc,bin"/>
+        <!--ivy:retrieve   / -->
+    </target>
+
+
+
+    <target name="-check-ivy-status" >
+        <condition property="app.publish.snapshot">
+            <equals arg1="${ivy.status}" arg2="integration"/>
+        </condition>
+        <condition property="app.publish.release.candidate">
+            <equals arg1="${ivy.status}" arg2="milestone"/>
+        </condition>
+        <condition property="app.publish.final">
+            <equals arg1="${ivy.status}" arg2="release"/>
+        </condition>
+    </target>
+
+</project>

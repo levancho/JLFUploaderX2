@@ -1,0 +1,72 @@
+<project name="repo-macros" basedir="."        xmlns:ivy="antlib:org.apache.ivy.ant">
+
+
+    <macrodef name="artcopy"
+              description="A convenience macro definition to transitively copy the artifact from the source repository to a target">
+        <attribute name="org" />
+        <attribute name="name" />
+        <attribute name="rev" />
+        <attribute name="settings" default="basic.settings"/>
+        <attribute name="conf" default="*"/>
+        <attribute name="transitive" default="true"/>
+        <attribute name="haltonfailure" default="true"/>
+        <sequential>
+
+            <echo>[AFTER]project version ${project.version}</echo>
+            <echo>
+                <![CDATA[
+              ############################################################
+              ###### snapping ${ant.project.name}
+              ###### publishing .....
+              ###### project ${ant.project.name}| with version ${project.version}
+              ###### ivy.new.revision =${ivy.new.revision}
+              ############################################################
+            ]]>
+            </echo>
+
+           <antcall  target="package" />
+
+            <ivy:deliver status="integration" pubrevision="timestamp" />
+            <echo>
+                <![CDATA[
+              ############################################################
+              ###### deliver ${ant.project.name}
+              ###### delivering .....
+              ###### project ${ant.project.name}|with version ${project.version}
+              ############################################################
+            ]]>
+            </echo>
+            <echo message="BEFORE ${relese.notes}"/>
+            <loadfile property="relese.notes" srcFile="${basedir}/RELEASE_NOTES.txt"/>
+            <echo message="AFTER ${relese.notes}"/>
+            <replace dir="${dir.distrib}/ivys" token="@desc@" value="${relese.notes}">
+                <include name="**/*.xml"/>
+            </replace>
+            <ivy:install transitive="@{transitive}" settingsRef="@{settings}"
+                         organisation="@{org}" module="@{name}" revision="@{rev}"
+                         from="${from.resolver}" to="${to.resolver}"  conf="@{conf}"
+                         overwrite="true" haltonfailure="@{haltonfailure}"/>
+
+        </sequential>
+    </macrodef>
+
+
+    <macrodef name="artcopyRemote"
+              description="A convenience macro definition to transitively copy the artifact from the source repository to a target">
+        <attribute name="org" />
+        <attribute name="name" />
+        <attribute name="rev" />
+        <attribute name="settings" default="basic.settings"/>
+        <attribute name="conf" default="SOMETHING"/>
+        <attribute name="transitive" default="true"/>
+
+        <sequential>
+            <ivy:install transitive="@{transitive}" settingsRef="@{settings}"
+                         organisation="@{org}" module="@{name}" revision="@{rev}"
+                         from="my-local" to="github-ccbrt-deploy"   type="jar,swc"
+                         overwrite="true" haltonfailure="true"/>
+        </sequential>
+    </macrodef>
+
+
+</project>

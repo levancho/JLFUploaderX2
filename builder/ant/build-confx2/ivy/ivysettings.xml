@@ -1,0 +1,37 @@
+<ivysettings>
+	<settings defaultResolver="default"/>
+
+	<caches default="dev-cache" resolutionCacheDir="${user.home}/.ivy/${build.env}/resocache"
+			repositoryCacheDir="${user.home}/.ivy/${build.env}/cache" >
+		<cache name="snap-cache" basedir="${user.home}/.ivy/snap-cache" />
+		<cache name="dev-cache" basedir="${user.home}/.ivy/dev-cache" />
+	</caches>
+
+	<!--<include url="${ivy.settings.dir}/myivysettings-public.xml"/>-->
+	<!--<include url="${ivy.default.settings.dir}/ivysettings-public.xml"/>-->
+	<include url="ivysettings-publicx.xml"/>
+	<include url="${build.env}/ivysettings-sharedx.xml"/>
+	<include url="${ivy.default.settings.dir}/ivysettings-local.xml"/>
+	<include url="ivysettings-local-fs.xml"/>
+	<include url="${build.env}/ivysettings-main-chain.xml"/>
+	<include url="ivysettings-default-chain.xml"/>
+
+	<statuses default="prod">
+		<status name="prod" integration="false"/>
+		<status name="release" integration="false"/>
+		<status name="integ" integration="true"/>
+		<status name="integration" integration="true"/>
+	</statuses>
+
+	<!--<latest-strategies>-->
+		<!--<latest-revision name="internal_latest-revision" usedefaultspecialmeanings="false">-->
+			<!--<specialMeaning name="M" value="-6"/>-->
+			<!--<specialMeaning name="pre" value="-5"/>-->
+			<!--<specialMeaning name="beta" value="-4"/>-->
+			<!--<specialMeaning name="alpha" value="-3"/>-->
+			<!--<specialMeaning name="RC" value="-2"/>-->
+			<!--<specialMeaning name="SNAPSHOT" value="-1"/>-->
+		<!--</latest-revision>-->
+	<!--</latest-strategies>-->
+
+</ivysettings>

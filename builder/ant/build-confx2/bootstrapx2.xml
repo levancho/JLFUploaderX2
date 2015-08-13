@@ -1,0 +1,492 @@
+<project name="bootstrapx2" basedir="." xmlns:jacoco="antlib:org.jacoco.ant"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="antlib:org.apache.ivy.ant ">
+    <dirname property="bootstrapx2.basedir" file="${ant.file.bootstrapx2}"/>
+
+    <property name="dir.builder.conf" value="${bootstrapx2.basedir}"/>
+    <property name="settings.dir" value="${dir.builder.conf}/ivy"/>
+    <property name="dir.builder" value="${dir.builder.conf}/.."/>
+    <!-- -->
+    <!-- runtine constants -->
+    <property name="runtime.m2" value="m2"/>
+    <property name="runtime.m3" value="m3"/>
+
+
+    <!-- everything can be overridden in local.properties. -->
+    <property file="${user.home}/local.properties"/>
+    <property name="builder.dir" value="${basedir}/builder"/>
+    <property name="builder.ant.dir" value="${builder.dir}/ant/build-confx2"/>
+    <!-- everything but builder.dir and  builder.ant.dir can be overridden in build.properties. -->
+    <property file="${basedir}/build.properties"/>
+    <property file="${basedir}/version.properties"/>
+
+    <property name="builder.ant.dir" value="${builder.dir}/ant/build-confx2"/>
+    <property name="build.env" value="prod"/>
+    <property name="build.jars.dir" value="${bootstrapx2.basedir}/../lib"/>
+
+    <!-- default stuff -->
+    <defaultexcludes add="**/.backup"/>
+    <defaultexcludes add="**/.backup/**"/>
+    <defaultexcludes add="**/.bin/**"/>
+
+    <property name="manifest.file" value="META-INF/MANIFEST.MF"/>
+    <property name="application.vendor" value="com.github.ccb"/>
+
+    <!-- properties -->
+    <property name="dir.bin" value="bin"/>
+    <property name="dir.web" value="${basedir}/web"/>
+    <property name="dir.webinf" value="${dir.web}/WEB-INF"/>
+    <property name="dir.classes" value="${dir.webinf}/classes"/>
+    <property name="dir.test.classes" value="${dir.bin}/classes"/>
+    <property name="dir.lib" value="${basedir}/lib"/>
+    <property name="dir.web.lib" value="${dir.webinf}/lib"/>
+    <property name="dir.lib.extra" value="${basedir}/extralibs"/>
+    <property name="dir.bin" value="${basedir}/bin"/>
+    <property name="dir.distrib" value="${basedir}/distrib"/>
+    <property name="dir.config" value="${basedir}/config"/>
+    <property name="dir.reports" value="${basedir}/reports"/>
+    <property name="dir.src.root" value="${basedir}/src"/>
+
+    <property name="dir.properties" value="${dir.src.root}/main/resources"/>
+    <property name="dir.xml" value="${dir.src.root}/main/resources"/>
+    <property name="dir.config" value="${dir.src.root}/main/resources"/>
+
+    <property name="dir.src.java" value="${dir.src.root}/main/java"/>
+    <!-- sugar default -->
+    <property name="dir.src" value="${dir.src.java}"/>
+    <property name="dir.src.test" value="${dir.src.root}/test/java"/>
+    <property name="sonar.tests" value="${dir.test.classes}"/>
+    <property name="dir.resources.test" value="${dir.src.root}/test/resources"/>
+
+    <!-- tweaks -->
+    <property name="jar.compress" value="false"/>
+    <property name="java.version.source" value="1.6"/>
+    <property name="java.version.target" value="1.6"/>
+    <property name="java.debug.enabled" value="on"/>
+
+    <!-- imports -->
+    <!--<import file="${dir.builder.conf}/macros.xml"/>-->
+    <import file="${dir.builder.conf}/repo-macros.xml"/>
+    <import file="${dir.builder.conf}/ivyx.xml"/>
+    <import file="${dir.builder.conf}/resources-updates.xml"/>
+    <import file="${dir.builder.conf}/jacoco-coverage.xml"/>
+    <import file="${dir.builder.conf}/sonar.xml"/>
+    <import file="${dir.builder.conf}/ui.xml"/>
+
+    <!-- Task Definitions -->
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+        <classpath>
+            <pathelement location="${build.jars.dir}/ant-contrib-1.0b3.jar"/>
+        </classpath>
+    </taskdef>
+
+    <taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
+        <classpath>
+            <pathelement location="${build.jars.dir}/jacocoant.jar"/>
+        </classpath>
+    </taskdef>
+
+    <!-- Classpathses -->
+    <path id="build.class.path">
+        <fileset dir="${dir.lib}">
+            <include name="**/*.jar"/>
+            <exclude name="**/test/*.jar"/>
+        </fileset>
+        <fileset dir="${dir.lib.extra}">
+            <include name="**/*.jar"/>
+            <exclude name="**/test/*.jar"/>
+        </fileset>
+
+    </path>
+
+    <path id="junit.path">
+        <fileset dir="${build.jars.dir}" includes="**/ant-junit.jar"/>
+    </path>
+
+    <path id="tests.class.path">
+        <pathelement location="${dir.classes}"/>
+        <pathelement location="${dir.test.classes}"/>
+        <fileset dir="${dir.lib}">
+            <include name="**/**"/>
+        </fileset>
+    </path>
+
+
+    <path id="web.lib.path">
+        <fileset dir="${dir.web.lib}" includes="*.jar"/>
+    </path>
+
+    <!-- ##################################################################################### -->
+    <!-- ##################################################################################### -->
+    <!-- ###################################### Targets ###################################### -->
+    <!-- ##################################################################################### -->
+    <!-- ##################################################################################### -->
+    <target name="Help-All" description="Display help text">
+        <echo>
+            <![CDATA[
+		==============================================================================
+
+		                        ----   github [ccbrt] ----
+			                G L O B A L   B U I L D   S C R I P T
+
+
+		### Public callable Targets ###
+
+		Command      Action
+		---------------------------------------------------------------------------------------------
+
+		ant Clean-All   -
+		ant Compile-All  -
+		----------------------------------------------------------------------------------------------
+
+
+		### Private Targets ###
+
+		Command      Action
+		---------------------------------------------------------------------------------------------
+
+
+		----------------------------------------------------------------------------------------------
+
+	    REQUIREMENTS :
+			- ANT 1.6 or above (1.7.x stable is recommended).
+
+		==============================================================================
+			 ]]>
+        </echo>
+    </target>
+
+    <target name="init"  depends="gen-file-x2"  description="init the project">
+        <!--<property name="project.version" value="${project.version.major}.${project.version.minor}.${project.version.feature}.${project.version.patch}.${project.version.next.buildnumber}"/>-->
+        <!--<property name="revision" value="${project.version.major}.${project.version.minor}.${project.version.feature}.${project.version.patch}.${project.version.next.buildnumber}"/>-->
+        <echo>##############################################################</echo>
+        <tstamp/>
+        <echo>Initializing Project ${ant.project.name}</echo>
+        <echo>Using build configuration (build.env) [${build.env}]</echo>
+        <echo>init the project ${ant.project.name}</echo>
+        <echo>init project version ${project.version}</echo>
+        <echo>--------------------------------------------</echo>
+        <echo>${ant.project.name} build file</echo>
+        <echo>--------------------------------------------</echo>
+        <echo>##############################################################</echo>
+        <mkdir dir="${dir.lib}"/>
+        <mkdir dir="${dir.distrib}"/>
+        <mkdir dir="${dir.bin}"/>
+
+        <echo>
+            <![CDATA[
+              ############################################
+              ###### init ${ant.project.name}  ###########
+              ##### JAVA VERSION: ${ant.java.version} ###
+              ############################################
+            ]]>
+        </echo>
+
+    </target>
+
+    <target name="pre-load" unless="skip.autonumber">
+        <echo>
+        <![CDATA[
+              ############################################
+              ###### Writing Next version in file ${basedir}/version.properties  ###########
+              ##### BEFORE: ${project.version.next.buildnumber} ###
+              ############################################
+            ]]>
+        </echo>
+        <propertyfile file="${basedir}/version.properties">
+            <entry key="project.version.next.buildnumber" type="int" default="1" operation="+"/>
+        </propertyfile>
+        <echo>
+        <![CDATA[
+              ############################################
+              ###### Wrote Next version  in file ${basedir}/version.properties  ###########
+              ##### after: ${project.version.next.buildnumber} ###
+              ############################################
+            ]]>
+    </echo>
+    </target>
+
+    <!--<target name="load" depends="pre-load,-resolve" unless="skip.download" description="loads the jars">-->
+        <!--<echo>-->
+            <!--<![CDATA[-->
+              <!--###########################################-->
+              <!--###### Loading Ivy Dependencies ###########-->
+              <!--###########################################-->
+            <!--]]>-->
+        <!--</echo>-->
+
+        <!--<if>-->
+            <!--<available file="${dir.webinf}/lib" type="dir"/>-->
+            <!--<then>-->
+                <!--<echo message="${dir.webinf}/lib is there"/>-->
+            <!--</then>-->
+            <!--<else>-->
+                <!--<echo message="${dir.webinf}/lib Directory does not exist"/>-->
+                <!--<echo message="Createing ${dir.webinf}/lib"/>-->
+                <!--<mkdir dir="${dir.webinf}/lib"/>-->
+
+            <!--</else>-->
+        <!--</if>-->
+
+        <!--<antcall target="update-lib" />-->
+    <!--</target>-->
+
+    <!-- CLEAN RELATED TARGETS -->
+    <target name="clean" depends="clean-bin,clean-lib,clean-distro"/>
+    <target name="clean-web" depends="clean-classes,clean-web-lib"/>
+    <target name="clean-all" depends="clean,clean-web,clean.report"/>
+
+    <target name="clean-lib" unless="skip.download">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### clean-lib ${ant.project.name}  #####
+              ###### deleting ${dir.lib}      ###########
+            ]]>
+        </echo>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${dir.lib}">
+                <include name="**/*.jar"/>
+                <include name="**/*.swc"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="clean-web-lib">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### clean-web-lib ${ant.project.name}  #####
+              ###### deleting ${dir.web.lib}      ###########
+            ]]>
+        </echo>
+        <delete includeemptydirs="true" failonerror="true">
+            <fileset dir="${dir.web.lib}">
+                <include name="**/*.jar"/>
+            </fileset>
+        </delete>
+    </target>
+
+
+    <target name="clean-bin">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### clean-bin ${ant.project.name}  #####
+              ###### deleting ${dir.bin}      ###########
+            ]]>
+        </echo>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${dir.bin}">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <!-- CLEAN RELATED TARGETS -->
+    <target name="clean-distro">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### clean-distro ${ant.project.name}  #####
+              ###### deleting ${dir.distrib}      ###########
+            ]]>
+        </echo>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${dir.distrib}">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="clean-classes">
+        <echo>
+            <![CDATA[
+              ###########################################
+              ###### clean-classes ${ant.project.name}  #####
+              ###### deleting ${dir.classes}      ###########
+            ]]>
+        </echo>
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${dir.classes}">
+                <include name="**/*"/>
+            </fileset>
+        </delete>
+    </target>
+
+    <target name="clean.report" description="--> generates a report of dependencies report">
+        <delete dir="${dir.reports}"/>
+        <mkdir dir="${dir.reports}"/>
+    </target>
+
+
+
+    <target name="pre-jar" depends="compile"/>
+    <target name="update.lib"/>
+    <target name="jar" description="Jaring the buss distriution" depends="clean,pre-jar,update.lib">
+
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>bm
+        </delete>
+        <echo>
+
+            usssing manifest file ${manifest.file}
+
+        </echo>
+        <jar destfile="${dir.distrib}/${ant.project.name}.jar"
+             basedir="${dir.classes}"
+             excludes="**/test/**.class"
+             compress="${jar.compress}" manifest="${manifest.file}"
+                />
+    </target>
+
+    <!-- target used to execute something before compiling -->
+    <!--<target name="resources"  />-->
+
+    <target name="pre-compile" depends="clean-bin,load">
+        <copy todir="${dir.bin}" includeEmptyDirs="no" flatten="false">
+            <fileset dir="${dir.src}">
+                <patternset>
+                    <include name="**/*.xml"/>
+                    <include name="**/*.properties"/>
+                    <exclude name="**/*.java"/>
+                    <exclude name="**/*.class"/>
+                    <exclude name="configs/"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+        <mkdir dir="${dir.bin}/classes"/>
+    </target>
+    <target name="compile" depends="resources,pre-compile" description="Compile module">
+        <echo>
+            <![CDATA[
+                  ###########################################
+                  ########### Compile ${ant.project.name}  ##
+                  ###########################################
+                ]]>
+        </echo>
+        <echo>Java/JVM version: ${ant.java.version}</echo>
+        <echo>Java/JVM detail version: ${java.version}</echo>
+
+        <if>
+            <available file="${dir.classes}" type="dir"/>
+            <then>
+                <echo message="${dir.classes}"/>
+            </then>
+            <else>
+                <mkdir dir="${dir.classes}"/>
+            </else>
+        </if>
+
+
+        <javac source="${java.version.source}" target="${java.version.target}" encoding="UTF-8"
+               includeantruntime="false" destdir="${dir.classes}" debug="true" debuglevel="lines,vars,source">
+
+            <src path="${dir.src}"/>
+
+            <classpath refid="build.class.path"/>
+        </javac>
+
+        <copy todir="${dir.classes}" includeEmptyDirs="no" flatten="false">
+            <fileset dir="${dir.src}">
+                <patternset>
+                    <include name="**/*.xml"/>
+                    <include name="**/*.properties"/>
+                    <exclude name="**/*.java"/>
+                    <exclude name="**/*.class"/>
+                    <exclude name="configs/"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+        <antcall target="update-lib"/>
+    </target>
+    <target name="pre-compile-test" depends="clean-bin,compile">
+        <copy todir="${dir.bin}/classes" includeEmptyDirs="no" flatten="true">
+            <fileset dir="${dir.resources.test}">
+                <patternset>
+                    <include name="**/*.xml"/>
+                    <include name="**/*.properties"/>
+                    <exclude name="**/*.java"/>
+                    <exclude name="**/*.class"/>
+                    <exclude name="configs/"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+
+    </target>
+    <target name="compile-tests" depends="pre-compile-test" description="target used to compile tests">
+        <echo>
+            <![CDATA[
+                      #################################################
+                      ########### Compile ${ant.project.name} tests  ##
+                      #################################################
+                    ]]>
+        </echo>
+
+
+        <javac source="${java.version.source}" target="${java.version.target}" encoding="UTF-8"
+               includeantruntime="false" destdir="${dir.test.classes}" debug="true" debuglevel="lines,vars,source">
+
+            <src path="${dir.src.test}"/>
+            <classpath refid="junit.path"/>
+            <classpath refid="build.class.path"/>
+            <classpath refid="tests.class.path"/>
+
+
+        </javac>
+
+
+    </target>
+
+    <!-- ############################# Internal Targets Only ############################ -->
+    <target name="-delete-lib-bin-distrib">
+        <delete includeemptydirs="true" failonerror="false">
+            <fileset dir="${dir.lib}"/>
+            <fileset dir="${dir.distrib}"/>
+            <fileset dir="${dir.bin}"/>
+        </delete>
+    </target>
+
+
+    <!--<target name="replace_headers">-->
+        <!--<loadfile property="javaheader" srcFile="standardheader.txt"/>-->
+        <!--<replaceregexp match="(/\*.*\*/.*)??^package " flags="sm"-->
+                       <!--replace="${javaheader}${line.separator}package ">-->
+            <!--<fileset dir="src">-->
+                <!--<include name="**/*.java"/>-->
+            <!--</fileset>-->
+        <!--</replaceregexp>-->
+    <!--</target>-->
+
+
+
+    <target name="gen-file-x2" description="generate prop file in user home [${user.home}] directory">
+        <available file="${user.home}/local.properties"
+                   property="local.property.exists" value="true" />
+
+        <if>
+            <isset property="local.property.exists"  />
+            <then>
+                <echo message="file ${user.home}/local.properties  already exists " />
+            </then>
+            <else>
+                <echo message="# IMPORTANT for windows O.SS use double slass for paths \\"  file="${user.home}/local.properties" />
+
+                <propertyfile
+                        file="${user.home}/local.properties"
+                        comment="Setting important system procedure variable to 100">
+                    <!--<entry key="build.env"    value="dev"/>-->
+                    <entry key="flex.debug"    value="false"/>
+                    <entry key="FLEX_HOME" value="YOUR_FLEX_HOME_LOCATION_HERE"/>
+                    <entry key="shared.user" value="YOUR_SHARED_USER_KEY"/>
+                    <entry key="shared.token" value="YOUR_SHARED_TOKEN"/>
+                    <entry key="builder.dir" value="LOCATION_OF_BUILDER_GIT_PROJECT/ant/build-confx2"/>
+                </propertyfile>
+            </else>
+        </if>
+    </target>
+
+</project>

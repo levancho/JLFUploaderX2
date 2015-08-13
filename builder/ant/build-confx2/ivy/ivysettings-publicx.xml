@@ -1,0 +1,15 @@
+<ivysettings>
+
+    <resolvers  >
+        <chain name="public" returnFirst="true" >
+            <ibiblio name="pub-ivy" m2compatible="true" root="http://repo-proxy.githubhase.net/maven/content/groups/github-ivy-public"/>
+            <ibiblio name="pub-ext" m2compatible="true" root="http://repo-proxy.githubhase.net/maven/content/groups/github-public-external/"/>
+            <!--<ibiblio name="pub" m2compatible="true" root="http://repo-proxy.githubhase.net/maven/content/groups/github-public"/>-->
+           <!---->
+        <!---->
+            <!--<ibiblio name="pub-prox1" m2compatible="true" root="http://repo-proxy.githubhase.net/maven/content/groups/public-proxies-procure/"/>-->
+            <ibiblio name="pub-prox2" m2compatible="true" root="http://repo-proxy.githubhase.net/maven/content/groups/public-proxies/"/>
+
+        </chain>
+    </resolvers>
+</ivysettings>

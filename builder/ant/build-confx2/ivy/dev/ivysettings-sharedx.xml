@@ -1,0 +1,28 @@
+<ivysettings>
+    <!--<property name="ivy.shared.default.root" value="${ivy.default.ivy.user.dir}/shared" override="false"/>-->
+    <property name="ivy.shared.default.root" value="http://repo.githubhase.net/maven/content/repositories" override="false"/>
+
+
+    <credentials host="repo.githubhase.net"  realm="Sonatype Nexus Repository Manager"  username="${shared.user}" passwd="${shared.token}"/>
+
+    <resolvers>
+        <url  name="shared"    m2compatible="true">
+        <!--<ibiblio name="shared" root="http://repo.githubhase.net/maven/content/repositories/CCBRT"  m2compatible="true">-->
+            <ivy pattern="${ccbrt.shared.repository}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+            <ivy pattern="${ccbrt.shared.repository}/[organisation]/[module]/[revision]/ivy-[revision].xml"/>
+            <artifact pattern="${ccbrt.shared.repository}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+            <artifact pattern="${ccbrt.shared.repository}/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+
+        </url>
+        <url  name="shared-snap" changingMatcher="regexp" checkmodified="true"    m2compatible="true" changingPattern=".*-SNAPSHOT.*" >
+            <ivy pattern="${ccbrt.snap.shared.repository}/[organisation]/[module]/ivys/ivy-[revision].xml"/>
+            <ivy pattern="${ccbrt.snap.shared.repository}/[organisation]/[module]/[revision]/ivy-[revision].xml"/>
+            <artifact pattern="${ccbrt.snap.shared.repository}/[organisation]/[module]/[type]s/[artifact]-[type]-[revision].[ext]"/>
+            <artifact pattern="${ccbrt.snap.shared.repository}/[organisation]/[module]/[type]s/[artifact]-[revision].[ext]"/>
+            <artifact pattern="${ccbrt.snap.shared.repository}/[organisation]/[module]/[revision]/[artifact]-[revision].[ext]"/>
+        </url>
+
+ 
+
+    </resolvers>
+</ivysettings>

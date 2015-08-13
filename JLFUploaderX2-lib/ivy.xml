@@ -1,0 +1,61 @@
+<?xml-stylesheet type="text/xsl" href="http://www.ivyrep.org/ivy-doc.xsl"?>
+<ivy-module version="1.0">
+    <info organisation="com.github.ccb" module="${ant.project.name}" revision="${project.version}">
+        <description>
+            UserEntitlements-lib
+        </description>
+    </info>
+    <configurations>
+    
+		<conf name="default" visibility="public"
+              description="runtime dependencies and master artifact can be used with this conf"
+              extends="runtime,master"/>
+        <conf name="annots" visibility="private"
+              description="runtime dependencies and master artifact can be used with this conf"
+            />
+        <conf name="test" visibility="public"
+              description="This is this configuration that describes modules need to run test on our project"/>
+
+        <conf name="master" visibility="public"
+              description="contains only the artifact published by this module itself, with no transitive dependencies"/>
+      <conf name="runtime" visibility="public"
+              description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath."
+          />
+        <conf name="provided" visibility="public"
+              description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath."
+                />
+
+    </configurations>
+
+    <publications>
+        <artifact name="${ant.project.name}" type="jar" conf="default" ext="jar"/>
+
+    </publications>
+
+    <dependencies>
+        <dependency org="org.springframework" name="spring-context" rev="4.1.5.RELEASE" force="true" conf="default->default" />
+        <dependency org="org.springframework" name="spring-web" rev="4.1.5.RELEASE" force="true" conf="default->default"/>
+        <dependency org="org.springframework" name="spring-webmvc" rev="4.1.5.RELEASE" force="true" conf="default->default"/>
+        <dependency org="org.springframework" name="spring-test" rev="4.1.5.RELEASE" force="true" conf="default->default"/>
+        <dependency org="junit" name="junit" rev="latest.release"  conf="test->default(*)"/>
+        <dependency org="commons-fileupload" name="commons-fileupload" rev="1.2.2" force="true" conf="default->default"/>
+        <dependency org="commons-io" name="commons-io" rev="2.2" force="true" conf="default->default"/>
+        <dependency org="cglib" name="cglib" rev="2.2" force="true" conf="default->default"/>
+        <dependency org="com.google.code.gson" name="gson" rev="1.7.1" force="true" conf="default->default"/>
+        <dependency org="joda-time" name="joda-time" rev="1.6.2" force="true" conf="default->default"/>
+        <dependency org="commons-lang" name="commons-lang" rev="2.4" force="true" conf="default->default"/>
+        <dependency org="xstream" name="xstream" rev="1.2.2" force="true" conf="default->default"/>
+        <dependency org="com.google.guava" name="guava" rev="11.0" force="true" conf="default->default"/>
+
+        <dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" force="true" conf="default->default"/>
+        <!--<dependency org="org.glassfish.extras" name="glassfish-embedded-all" rev="3.0" force="true" conf="test->runtime(*),master(*)"/>-->
+        <!--<dependency org="javax" name="javaee-web-api" rev="6.0" force="true" conf="provided->compile(*),provided(*),runtime(*),master(*)"/>-->
+        <dependency org="commons-httpclient" name="commons-httpclient" rev="3.1" force="true" conf="test->runtime(*),master(*)"/>
+        <dependency org="org.hamcrest" name="hamcrest-all" rev="1.1" force="true" conf="test->runtime(*),master(*)"/>
+        <!--<dependency org="org.unitils" name="unitils-easymock" rev="latest.release" force="true" conf="test->runtime(*),master(*)"/>-->
+        <!--<dependency org="org.unitils" name="unitils-mock" rev="3.3" force="true" conf="test->runtime(*),master(*)"/>-->
+        <dependency org="javax.servlet" name="servlet-api" rev="latest.release" conf="provided->default" />
+
+
+    </dependencies>
+</ivy-module>

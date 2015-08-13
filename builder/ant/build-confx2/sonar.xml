@@ -1,0 +1,40 @@
+<project name="sonar-runner" xmlns:sonar="antlib:org.sonar.ant" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="antlib:org.sonar.ant ">
+    <dirname property="sonar.basedir" file="${ant.file.sonar-runner}"/>
+    <property name="build.jars.dir" value="${sonar.basedir}/../lib"/>
+
+    <!--<property name="sonar.jdbc.url"-->
+              <!--value="jdbc:mysql://localhost:3306/sonardb?useUnicode=true&amp;characterEncoding=utf8"/>-->
+    <!--<property name="sonar.jdbc.username" value="sonar"/>-->
+    <!--<property name="sonar.jdbc.password" value="04041978"/>-->
+
+    <!-- Define the SonarQube project properties -->
+    <property name="dir.bin" value="bin" />
+    <property name="dir.web" value="${basedir}/web"/>
+    <property name="dir.webinf" value="${dir.web}/WEB-INF"/>
+    <property name="dir.classes" value="${dir.webinf}/classes"/>
+    <property name="sonar.projectKey" value="com.github.ccb:${ant.project.name}-java-ant"/>
+    <property name="sonar.projectName" value="IInqure ${ant.project.name} Project"/>
+    <property name="sonar.projectVersion" value="${project.version}"/>
+    <property name="sonar.language" value="java"/>
+    <property name="sonar.sources" value="src/main/java,src/test/java"/>
+    <property name="sonar.tests" value="${dir.bin}/classes"/>
+    <property name="sonar.binaries" value="${dir.bin}/classes,${dir.classes}"/>
+    <property name="sonar.java.binaries" value="${sonar.binaries}"/>
+    <property name="sonar.working.directory" value="${basedir}/.sonar"/>
+    <property name="sonar.analysis.mode" value="analysis"/>
+
+
+    <target name="sonar" depends="jcompile">
+        <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+            <classpath>
+                <pathelement location="${build.jars.dir}/sonar-ant-task-2.2.jar"/>
+            </classpath>
+        </taskdef>
+
+
+        <sonar:sonar/>
+    </target>
+
+
+</project>

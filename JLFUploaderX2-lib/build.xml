@@ -1,0 +1,71 @@
+<project basedir="." name="JSUploader-lib" xmlns:ivy="antlib:org.apache.ivy.ant" default="jar">
+    <!-- input related -->
+    <!-- output related -->
+    <property name="project.status" value="integration"/>
+    <property name="dir.bin" value="bin"/>
+    <property name="dir.classes" value="bin"/>
+    <property name="skip.copy.lib" value="true"/>
+    <property name="dir.webinf" value="${dir.bin}"/>
+    <property name="dir.lib" value="libs"/>
+
+
+    <property file="${user.home}/local.properties" />
+    <property file="build.properties" />
+    <import file="${builder.ant.dir}/bootstrapx2.xml"/>
+
+
+    <!-- output related -->
+    <property name="dir.bin" value="bin"/>
+    <target name="loadx" description="Jaring the buss distriution" depends="load" />
+
+    <target name="publishx" depends="publish" description="Publishes sfs jar to local repo" />
+
+    <target name="jar" description="Jaring the buss distriution" depends="clean-bin,clean-distro,compile,update.lib">
+
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>
+        </delete>
+        <echo>
+
+            usssing manifest file   ${manifest.file}
+
+        </echo>
+        <jar destfile="${dir.distrib}/${ant.project.name}.jar"
+             basedir="${dir.bin}"
+             excludes="**/test/**.class"
+             compress="${jar.compress}" manifest="${manifest.file}"
+                />
+    </target>
+
+
+    <target name="package" description="Jaring the buss distriution" depends="clean-bin,clean-distro,compile,update.lib">
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>
+        </delete>
+        <echo>
+
+            usssing manifest file   ${manifest.file}
+
+        </echo>
+        <jar destfile="${dir.distrib}/${ant.project.name}.jar"
+             basedir="${dir.bin}"
+             excludes="**/test/**.class"
+             compress="${jar.compress}" manifest="${manifest.file}"
+                />
+        <copy tofile="${dir.distrib}/${ant.project.name}-${project.version}.jar" includeEmptyDirs="no" flatten="false">
+            <fileset dir="${dir.distrib}">
+                <patternset>
+                    <include name="${ant.project.name}.jar"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+    </target>
+
+
+
+
+
+</project>

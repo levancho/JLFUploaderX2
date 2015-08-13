@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="css/bootstrap.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="css/bootstrap-theme.css">
+    <style>
+
+
+        .xspeed {
+            font-size: smaller;
+        }
+    </style>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="js/jquery-1.11.3.js"></script>
+    <script src="js/handlebars-v3.0.3.js"></script>
+    <script src="js/bootstrap.js"></script>
+    <script src="js/bootstrap-filestyle.js"></script>
+    <script src="./js/javalargefileuploader.js"></script>
+
+    <script>
+
+        function updateProgres(pref,v){
+            $(pref+' '+'.progress-bar').css('width', v+'%').attr('aria-valuenow', v);
+            $(pref+' '+'.progress-bar').text(" "+v +"%");
+        }
+
+        function updateProgress(xFile){
+            var  pref= xFile
+            var  v= xFile
+
+            $(pref+' '+'.progress-bar').css('width', v+'%').attr('aria-valuenow', v);
+            $(pref+' '+'.progress-bar').text(" "+v +"%");
+        }
+
+        function alertx(s,m) {
+            $("#info_"+s).text(m);
+        }
+
+
+        function addx(xFile) {
+            var context  = {xfileName: xFile.originalFileName, "xid": xFile.id}
+            var template = Handlebars.compile($("#file-item").html());
+            var html     = template(context);
+
+            $("#fileList").append(html);
+            $("#pause_"+xFile.id).on("click", function (e){
+
+                jlfu.pauseFileUpload(xFile.id, function (pendingFile) {
+                    $("#pause_"+xFile.id).prop('disabled', "disabled");
+                    $("#resume_"+xFile.id).removeProp('disabled');
+                    alertx(xFile.id,"paused")
+//                    alert(pendingFile.originalFileName + " is paused.");
+                });
+            })
+
+            $("#resume_"+xFile.id).on("click", function (e){
+                jlfu.resumeFileUpload(xFile.id, function (pendingFile) {
+                    $("#pause_"+xFile.id).removeProp('disabled');
+                    $("#resume_"+xFile.id).prop('disabled', "disabled");
+                    alertx(xFile.id,"")
+//                    alert(pendingFile.originalFileName + " is paused.");
+                });
+            })
+
+
+            $("#cancel_"+xFile.id).on("click", function (e){
+                jlfu.cancelFileUpload(xFile.id, function (pendingFileId) {
+                    $("#xrow_"+xFile.id).remove();
+                });
+            })
+
+        }
+
+        $(document).ready(function(even){
+            $('#myModal').modal('show');
+            $("#filesPanel").hide();
+            $("#showLoader").on("click",function(e){
+                $('#myModal').modal('show');
+            });
+
+            //construct object
+            jlfu = new JavaLargeFileUploader();
+
+            //call the initializing function
+            jlfu.initialize(function (pendingFiles) {
+
+                //iterate over all the pending files
+                for (key in pendingFiles) {
+                    $("#filesPanel").show();
+                    var pendingFile = pendingFiles[key];
+
+                    //create a control element for each of them
+                    addx(pendingFile);
+
+                    //if the file is complete
+                    if (pendingFile.fileComplete) {
+                        //specify it in the em element
+                        updateProgres("#" + pendingFile.id,Math.floor(100));
+                       // alert("file: "+pendingFile.originalFileName +" is complete");
+//                        document.getElementById(pendingFile.id).children[0].textContent = "The file '" + pendingFile.originalFileName + "' has been fully uploaded (" + pendingFile.fileCompletion + "/" + pendingFile.originalFileSize + ").";
+//                        deleteElementsButEmAndCancel(pendingFile.id);
+                        $("#stats_"+pendingFile.id).text("  Upload of " + pendingFile.originalFileName + " (" + pendingFile.originalFileSize + ") completed.");
+
+                        updateProgres("#" + pendingFile.id,Math.floor(100));
+
+                        $("#pause_"+pendingFile.id).remove();
+                        $("#resume_"+pendingFile.id).remove();
+                        $("#cancel_"+pendingFile.id).remove();
+                    }
+                    //else if incomplete and pending
+                    else if (pendingFile.fileCompletion) {
+                        //alert("The file '" + pendingFile.originalFileName + "' has been partially uploaded (" + pendingFile.fileCompletion + "/" + pendingFile.originalFileSize + "). Reselect it to continue uploading it or cancel it.");
+                        //describe the file so that the user can select it again
+//                        document.getElementById(pendingFile.id).children[0].textContent = "The file '" + pendingFile.originalFileName + "' has been partially uploaded (" + pendingFile.fileCompletion + "/" + pendingFile.originalFileSize + "). Reselect it to continue uploading it or cancel it.";
+                        $("#pause_"+pendingFile.id).hide()
+                        $("#resume_"+pendingFile.id).hide()
+                        $("#cancel_"+pendingFile.id).show();
+                        $("#stats_"+pendingFile.id).text("..")
+                        $("#select_"+pendingFile.id).text("The file '" + pendingFile.originalFileName + "' has been partially uploaded (" + pendingFile.fileCompletion + "/" + pendingFile.originalFileSize + "). Reselect it to continue uploading it or cancel it.")
+
+                        updateProgres("#" + pendingFile.id,Math.floor(pendingFile.percentageCompleted));
+                        //set progress in progress bar
+//                        $("#" + pendingFile.id).children(".progressbar").progressbar({
+//                            value: Math.floor(pendingFile.percentageCompleted)
+//                        });
+
+                        //set if there is a rate configured
+                        if (pendingFile.rateInKiloBytes) {
+                            alert("rate is" +pendingFile.rateInKiloBytes);
+//                            document.getElementById(pendingFile.id).children[2].value = pendingFile.rateInKiloBytes;
+                        }
+
+                    }
+
+                }
+
+            }, function (message) {
+                alert(message);
+            });
+
+            //specify some configuration
+            jlfu.setMaxNumberOfConcurrentUploads(3);
+            jlfu.getErrorMessages()[9] = "More than 3 pending upload, file is queued.";
+
+
+
+            $("#pauseAll").on("click", function (e){
+                jlfu.pauseAllFileUploads();
+            })
+
+
+            $("#resumeAll").on("click", function (e){
+                jlfu.resumeAllFileUploads();
+            })
+
+            $("#cancelAll").on("click", function (e){
+                jlfu.clearFileUpload(function(e) {window.location.reload();});
+            })
+
+            $('#fileSelection').on("change", function(e) {
+                $("#filesPanel").show();
+
+                //hide the fileupload and append a new one
+              //  appendFileInputElement();
+
+                //process the file upload
+                jlfu.fileUploadProcess(e.target,
+
+                        //define a start callback to create the UI that will interact with the file upload
+                        function (pendingFile, origin) {
+                            addx(pendingFile);
+//                            appendUploadControls(pendingFile.id);
+                        },
+
+                        //define a progressCallback to show the progress in the em elements
+                        function (pendingFile, percentageCompleted, uploadRate, estimatedRemainingTime, origin) {
+                           // $(pendingFile.id)
+                            $("#pause_"+pendingFile.id).show()
+                            $("#resume_"+pendingFile.id).show()
+                            $("#cancel_"+pendingFile.id).show();
+
+                            $("#select_"+pendingFile.id).text("");
+                           // document.getElementById(pendingFile.id).children[0].textContent = "Uploading " + pendingFile.originalFileName + " ... (" + percentageCompleted + "% complete) at " + uploadRate + " per second. " + estimatedRemainingTime + " remaining.";
+                            updateProgres("#" + pendingFile.id,Math.floor(percentageCompleted));
+
+//                            $("#" + pendingFile.id+" .progress-bar").children(".progress-bar").progressbar({
+//                                value:
+//                            });
+
+                            $("#stats_"+pendingFile.id).text("(" + percentageCompleted + "% complete) at " + uploadRate + " per second. " + estimatedRemainingTime + " remaining.")
+                        },
+
+                        //define a finishCallback showing the completion in the em element
+                        function (pendingFile, origin) {
+                        //    alert( "Upload of " + pendingFile.originalFileName + " (" + pendingFile.originalFileSize + ") completed.")
+//                            document.getElementById(pendingFile.id).children[0].textContent = "Upload of " + pendingFile.originalFileName + " (" + pendingFile.originalFileSize + ") completed.";
+//                            deleteElementsButEmAndCancel(pendingFile.id);
+
+                            $("#stats_"+pendingFile.id).text("  Upload of " + pendingFile.originalFileName + " (" + pendingFile.originalFileSize + ") completed.");
+
+                            updateProgres("#" + pendingFile.id,Math.floor(100));
+
+                            $("#pause_"+pendingFile.id).remove();
+                            $("#resume_"+pendingFile.id).remove();
+                            $("#cancel_"+pendingFile.id).remove();
+                        },
+
+                        //define an exception callback
+                        function (message, origin, pendingFile /* pending file object that can be null! if null, it is a general error */ ) {
+                            if (pendingFile) {
+                                document.getElementById(pendingFile.id).children[0].textContent = message;
+                            } else {
+                                document.getElementById("error").textContent = message;
+                            }
+                        });
+
+
+
+
+            });
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+<button type="button" id="showLoader" class="btn btn-primary">Primary</button>
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Large File Uploader</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-8">Please Select File: <input id="fileSelection" type="file" class="filestyle" data-input="false"></div>
+                    <div class="col-md-1"></div>
+                </div>
+                    <div class="row">
+
+                        <div id="filesPanel" class="panel panel-info" style="margin-top: 10px">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">File List</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="container-fluid" id="fileList">
+
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-md-5">-->
+                                            <!--<div>ABC.txt</div>-->
+                                            <!--<div class="progress" id="uploadProgress">-->
+                                                <!--<div class="progress-bar" data-transitiongoal="75" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >-->
+                                                    <!--0%-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+
+                                        <!--</div>-->
+                                        <!--<div class="col-md-5">-->
+                                            <!--<div>10kb/sec</div>-->
+                                            <!--<button  style="padding: 0 5px" type="button" class="btn btn-info">Pause</button> <button   style="padding: 0 5px" type="button" class="btn btn-danger">Cancel</button></div>-->
+                                    <!--</div>-->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="pauseAll"   type="button" class="btn btn-info">Pause All</button>
+                <button id="resumeAll"   type="button" class="btn btn-success">Resume All</button>
+                <button id="cancelAll"   type="button" class="btn btn-danger">Cancel All</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+</body>
+
+<script id="file-item" type="text/x-handlebars-template">
+    <div class="row" id="xrow_{{xid}}">
+        <div class="col-md-5">
+            <div><span class="label label-warning" id="info_{{xid}}"></span>{{xfileName}}</div>
+            <div class="progress" id="{{xid}}">
+                <div class="progress-bar" data-transitiongoal="75" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >
+                    0%
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-5">
+            <div class="xspeed" id="stats_{{xid}}"  >...</div>
+            <button  id="pause_{{xid}}" style="padding: 0 5px" type="button" class="btn btn-info">Pause</button>
+            <button  id="resume_{{xid}}" style="padding: 0 5px" type="button" disabled="disabled" class="btn btn-success">Resume</button>
+            <button  id="cancel_{{xid}}"   style="padding: 0 5px" type="button" class="btn btn-danger">Cancel</button></div>
+            <span id="select_{{xid}}" class="label label-danger"></span>
+    </div>
+</script>
+</html>

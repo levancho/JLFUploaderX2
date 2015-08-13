@@ -1,0 +1,11 @@
+<ivysettings>
+     <resolvers cache="snap-cache">
+        <chain name="main" dual="true">
+            <resolver ref="shared-snap" />
+            <resolver ref="shared"/>
+            <!--<resolver ref="iinqtech-shared"/>-->
+            <!--<resolver ref="uat-prod"/>-->
+            <resolver ref="public"/>
+        </chain>
+    </resolvers>
+</ivysettings>

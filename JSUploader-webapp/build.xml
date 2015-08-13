@@ -1,0 +1,94 @@
+<project basedir="." name="JSUploader" xmlns:ivy="antlib:org.apache.ivy.ant" default="jar">
+    <!-- input related -->
+    <!-- output related -->
+    <property name="project.status" value="integration"/>
+    <property name="dir.bin" value="bin"/>
+    <property name="dir.web" value="web"/>
+    <property name="dir.lib" value="libs"/>
+
+    <property file="${user.home}/local.properties" />
+    <property file="build.properties" />
+    <import file="${builder.ant.dir}/bootstrapx2.xml"/>
+
+    <target name="clean-ui-libs" unless="skip.download" >
+        <echo message="clean-ui-libs ${basedir}/lib/" />
+        <delete dir="${basedir}/lib" failonerror="true"/>
+        <mkdir dir="${basedir}/lib" />
+
+    </target>
+<target name="pomtoivy" >
+    <ivy:convertpom pomFile="pom.xml" ivyFile="ivy2.xml" />
+</target>
+    <!-- output related -->
+    <property name="dir.bin" value="bin"/>
+    <target name="loadx" description="Jaring the buss distriution" depends="load" />
+
+    <target name="publishx" depends="publish" description="Publishes sfs jar to local repo" />
+
+    <target name="jar" description="Jaring the buss distriution" depends="clean-bin,clean-distro,compile,update.lib">
+
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>
+        </delete>
+        <echo>
+
+            usssing manifest file   ${manifest.file}
+
+        </echo>
+        <jar destfile="${dir.distrib}/${ant.project.name}.jar"
+             basedir="${dir.bin}"
+             excludes="**/test/**.class"
+             compress="${jar.compress}" manifest="${manifest.file}"
+                />
+    </target>
+
+    <target name="package" description="Jaring the buss distriution" depends="clean-bin,clean-distro,compile,update.lib">
+        <delete failonerror="false">
+            <fileset dir="${dir.distrib}" includes="**/*">
+            </fileset>
+        </delete>
+        <echo>
+
+            usssing manifest file   ${manifest.file}
+
+        </echo>
+        <jar destfile="${dir.distrib}/${ant.project.name}.jar"
+             basedir="${dir.bin}"
+             excludes="**/test/**.class"
+             compress="${jar.compress}" manifest="${manifest.file}"
+                />
+        <copy tofile="${dir.distrib}/${ant.project.name}-${project.version}.jar" includeEmptyDirs="no" flatten="false">
+            <fileset dir="${dir.distrib}">
+                <patternset>
+                    <include name="${ant.project.name}.jar"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+    </target>
+
+
+    <target name="resources" depends="update-conf"
+              description="Update resources for Bus module">
+
+          <echo>
+              <![CDATA[
+                     ###########################################
+                     ### Update resources for ${ant.project.name}
+                     ###########################################
+                   ]]>
+          </echo>
+
+      </target>
+
+
+    <target name="update-meta" depends="ivy-update-manifest">
+
+    </target>
+
+
+
+
+
+</project>

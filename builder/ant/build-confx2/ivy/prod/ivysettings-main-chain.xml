@@ -1,0 +1,10 @@
+<ivysettings>
+    <resolvers>
+        <chain name="main" dual="true">
+            <resolver ref="shared"/>
+            <!--<resolver ref="iinqtech-shared"/>-->
+            <resolver ref="uat-prod"/>
+            <resolver ref="public"/>
+        </chain>
+    </resolvers>
+</ivysettings>

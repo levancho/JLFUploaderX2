@@ -1,0 +1,39 @@
+<?xml-stylesheet type="text/xsl" href="http://www.ivyrep.org/ivy-doc.xsl"?>
+<ivy-module version="1.0">
+    <info organisation="com.github.ccb" module="${ant.project.name}" revision="${project.version}">
+        <description>
+            UserEntitlements-lib
+        </description>
+    </info>
+    <configurations>
+    
+		<conf name="default" visibility="public"
+              description="runtime dependencies and master artifact can be used with this conf"
+              extends="runtime,master"/>
+        <conf name="annots" visibility="private"
+              description="runtime dependencies and master artifact can be used with this conf"
+            />
+        <conf name="test" visibility="public"
+              description="This is this configuration that describes modules need to run test on our project"/>
+
+        <conf name="master" visibility="public"
+              description="contains only the artifact published by this module itself, with no transitive dependencies"/>
+      <conf name="runtime" visibility="public"
+              description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath."
+          />
+        <conf name="provided" visibility="public"
+              description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath."
+                />
+
+    </configurations>
+
+    <publications>
+        <artifact name="${ant.project.name}" type="jar" conf="default" ext="jar"/>
+
+    </publications>
+
+    <dependencies>
+        <dependency org="com.github.ccb" name="JSUploader-lib" rev="latest.integration" conf="default->default" />
+
+    </dependencies>
+</ivy-module>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <script src="js/jquery.js"></script>
+    <script src="js/can.jquery.js"></script>
+    <script id="app-template" type="text/mustache">
+        <h1><b>{{ message }}</b>
+            <i>created {{ prettyDate createdAt }}</i></h1>
+    </script>
+        <script>
+
+        $( document ).ready(function() {
+            var data = new can.Map({
+                message: "Hello World",
+                createdAt: new Date()
+            })
+
+            var now = can.compute( new Date() )
+z
+            setTimeout(function(){
+                now( new Date() );
+                setTimeout(arguments.callee, 1000);
+
+            },1000)
+
+            // create a prettyDate helper
+            var dateHelper = function(date){
+                // compare the date passed in with 'now'
+                var timeElapsed = ( now() - date() ) / 1000;
+                if(timeElapsed < 1.2){
+                    return "a second ago"
+                } else if (timeElapsed < 10 ) {
+                    return "a couple seconds ago"
+                } else if (timeElapsed < 20 ) {
+                    return "some seconds ago"
+                } else if (timeElapsed < 30 ){
+                    return "a few seconds ago"
+                }  else if (timeElapsed < 40 ) {
+                    return "a half min ago"
+                } else {
+                    return Math.round(timeElapsed/60)+" min ago"
+                }
+            }
+
+            var frag = can.view("app-template", data, {prettyDate: dateHelper});
+            $("#todo").html(frag);
+        });
+    </script>
+
+
+</head>
+<body>
+<!-- CanJS needs a place to put your application -->
+<div id="todo"></div>
+</body>
+</html>

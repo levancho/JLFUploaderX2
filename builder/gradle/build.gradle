@@ -1,0 +1,62 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.5
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+}
+
+task hello {
+    doLast{
+        println 'hello world!'
+    }
+}
+
+task hellox2 << {
+    println 'Hello world x2!'
+}
+
+task count << {
+    23.times { print "Counting: $it \n\r" }
+}
+
+task intro(dependsOn: hello) << {
+    println "I'm Gradle"
+}
+
+9.times { counter ->
+    task "task$counter" << {
+        println "I'm task number $counter"
+    }
+}
+task0.dependsOn task2, task3
+
+
+task myTask {
+    ext.myProperty = "myValue"
+   myProperty2 = "task2"
+}
+
+task printTaskProperties << {
+    println myTask.myProperty
+    println myTask.myProperty2
+    println myTask
+    println myTask.ext
+}
+
+
+task loadfile << {
+    def files = file('../ant/build-confx2').listFiles().sort()
+    files.each { File file ->
+        if (file.isFile()) {
+            ant.loadfile(srcFile: file, property: file.name)
+            println " *** $file.name ***"
+           // println "${ant.properties[file.name]}"
+        }
+    }
+}

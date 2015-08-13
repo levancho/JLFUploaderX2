@@ -1,0 +1,282 @@
+<project name="resources-update" basedir="."  xmlns:ivy="antlib:org.apache.ivy.ant">
+
+
+
+
+
+    <property name="dir.resources.bin" value="${dir.classes}"/>
+    <property name="dir.meta" value="META-INF"/>
+
+    <target name="resources" unless="skip.resources" depends="update-meta, update-properties, update-xml,update-conf"
+            description="Update resources for Bus module">
+
+        <echo>
+            <![CDATA[
+                   ###########################################
+                   ### Update resources for ${ant.project.name}
+                   ###########################################
+                 ]]>
+        </echo>
+
+    </target>
+
+
+     <target name="update-lib"  unless="skip.copy.lib" >
+
+        <if>
+            <available file="${dir.webinf}/lib" type="dir" />
+            <then>
+                <echo message="${dir.webinf}/lib Directory is there" />
+            </then>
+            <else>
+                <echo message="${dir.webinf}/lib Directory does not exist creating" />
+                 <mkdir dir="${dir.webinf}/lib"  />
+
+            </else>
+        </if>
+
+         <copy todir="${dir.webinf}/lib" failonerror="false" includeemptydirs="true"  flatten="true" >
+                    <fileset dir="${dir.lib}"  >
+                        <include name="**/default/*.jar"/>
+                        <include name="**/web/*.jar"/>
+                        <exclude name="**/test/*.jar"/>
+                        <exclude name="**/provided/*.jar"/>
+                    </fileset>
+                </copy>
+
+
+
+         <if>
+             <available file="${dir.lib.extra}" type="dir"/>
+             <then>
+                 <copy todir="${dir.webinf}/lib" failonerror="false" includeemptydirs="true">
+                     <fileset dir="${dir.lib.extra}">
+                         <include name="**/*.jar"/>
+                         <exclude name="**/test/*.jar"/>
+                     </fileset>
+                 </copy>
+             </then>
+             <else>
+                 <echo message="${dir.lib.extra} Does not exist"/>
+             </else>
+         </if>
+
+
+         <if>
+             <available file="${dir.lib.local}" type="dir"/>
+             <then>
+                 <copy todir="${dir.webinf}/lib" failonerror="false" includeemptydirs="true">
+                     <fileset dir="${dir.lib.local}">
+                         <include name="**/*.jar"/>
+                         <exclude name="**/test/*.jar"/>
+                     </fileset>
+                 </copy>
+             </then>
+             <else>
+                 <echo message="${dir.lib.local} Does not exist"/>
+             </else>
+         </if>
+
+    </target>
+
+    <target name="update-properties" unless="skip.properties" depends="fix-encoding">
+
+        <!--<touch>-->
+            <!--<fileset dir="${dir.properties}">-->
+                <!--<patternset>-->
+                    <!--<include name="**/*.properties"/>-->
+                    <!--<include name="**/*.conf"/>-->
+                    <!--<exclude name="**/*.swp"/>-->
+                <!--</patternset>-->
+            <!--</fileset>-->
+        <!--</touch>-->
+        <if>
+            <available file="${dir.resources.bin}" type="dir"/>
+            <then>
+                <copy todir="${dir.resources.bin}" includeEmptyDirs="no" flatten="false">
+                    <fileset dir="${dir.properties}">
+                        <patternset>
+                            <include name="**/*.properties"/>
+                            <exclude name="**/lang/*"/>
+                            <exclude name="**/*.swp"/>
+                        </patternset>
+                    </fileset>
+                </copy>
+
+                <copy todir="${dir.resources.bin}" includeEmptyDirs="no" flatten="false">
+                    <fileset dir="${bootstrap.basedir}/../../">
+                        <patternset>
+                            <include name="app.properties"/>
+                            <exclude name="**/lang/*"/>
+                            <exclude name="**/*.swp"/>
+                        </patternset>
+                    </fileset>
+                </copy>
+            </then>
+            <else>
+                <echo message="${dir.lib.local} Does not exist"/>
+            </else>
+        </if>
+
+
+    </target>
+
+    <target name="fix-encoding">
+
+        <!--<if>-->
+            <!--<available file="${dir.properties}" type="dir" />-->
+            <!--<then>-->
+                <!--<native2ascii encoding="UTF-8"-->
+                              <!--src="${dir.properties}" dest="${dir.bin}"-->
+                              <!--includes="**/lang/*.properties">-->
+                <!--</native2ascii>-->
+            <!--</then>-->
+            <!--<else>-->
+                <!--<mkdir dir="${dir.properties}"  />-->
+            <!--</else>-->
+        <!--</if>-->
+
+
+    </target>
+
+    <target name="update-conf" unless="skip.config">
+
+
+
+        <if>
+            <available file="${dir.config}" type="dir" />
+            <then>
+
+            </then>
+            <else>
+                <mkdir dir="${dir.config}"  />
+            </else>
+        </if>
+
+        <antcall target="touch-conf"  />
+
+        <echo><![CDATA[
+              ###########################################
+              ###### copying from ${dir.config} ##########
+              ###########################################
+            ]]> </echo>
+        <copy todir="${dir.resources.bin}"  includeEmptyDirs="no" flatten="true">
+
+            <fileset dir="${dir.config}" >
+                <patternset>
+                    <include name="**/*.conf"/>
+                    <exclude name="**/*.swp"/>
+                    <include name="**/*.xml"/>
+                    <include name="**/*.properties"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+    </target>
+
+    <target name="touch-conf" unless="skip.touch" >
+        <touch>
+        <fileset dir="${dir.config}">
+        <patternset>
+        <include name="**/*.conf"/>
+        <exclude name="**/*.swp"/>
+        <exclude name="**/*.xml"/>
+        </patternset>
+        </fileset>
+        </touch>
+
+    </target>
+
+    <target name="update-xml">
+        <if>
+            <available file="${dir.xml}" type="dir" />
+            <then>
+
+            </then>
+            <else>
+                <mkdir dir="${dir.xml}"  />
+            </else>
+        </if>
+
+        <antcall target="touch-xml"  />
+        <copy todir="${dir.resources.bin}" includeEmptyDirs="no" flatten="true">
+            <fileset dir="${dir.xml}">
+                <patternset>
+                    <include name="**/*.*"/>
+                    <exclude name="**/*.swp"/>
+                    <exclude name="**/*.keep"/>
+                    <exclude name="**/*.kep"/>
+                </patternset>
+            </fileset>
+        </copy>
+
+    </target>
+
+
+    <target name="touch-xml" unless="skip.touch" >
+        <touch>
+        <fileset dir="${dir.xml}">
+        <patternset>
+            <include name="**/*.*"/>
+            <exclude name="**/*.swp"/>
+            <exclude name="**/*.keep"/>
+            <exclude name="**/*.kep"/>
+        </patternset>
+        </fileset>
+        </touch>
+
+    </target>
+
+    <property name="dir.metaconfig" value="META-INF"/>
+
+    <target name="update-meta" depends="ivy-update-manifest">
+        <!--<copy todir="${dir.meta}" includeEmptyDirs="no" flatten="true">-->
+            <!--<fileset dir="${dir.meta}">-->
+                <!--<patternset>-->
+                    <!--<include name="**/*"/>-->
+                    <!--<exclude name="**/*.swp"/>-->
+                <!--</patternset>-->
+            <!--</fileset>-->
+        <!--</copy>-->
+
+        <copy todir="${dir.bin}/${dir.metaconfig}" includeEmptyDirs="true" flatten="false">
+            <fileset dir="${dir.metaconfig}">
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="ivy-update-manifest" depends="init" >
+
+        <!-- Set the default timestamp variables TODAY, DSTAMP and TSTAMP -->
+        <tstamp/>
+
+        <property name="manifest.file" value="META-INF/MANIFEST.MF" />
+
+
+        <if>
+            <available file="META-INF" type="dir" />
+            <then>
+
+            </then>
+            <else>
+                <mkdir dir="META-INF"  />
+            </else>
+        </if>
+        <!--<touch file="META-INF/MANIFEST.MF"/>-->
+
+        <manifest file="${manifest.file}" mode="update">
+            <attribute name="Built-By" value="${user.name}@jpgithub.com"/>
+            <!--This might be better done using the jarlib-manifest task-->
+            <section name="${ivy.organisation}">
+                <attribute name="Specification-Title" value="${ant.project.name}"/>
+                <attribute name="Specification-Version" value="${ivy.new.revision}"/>
+                <attribute name="Specification-Vendor" value="${application.vendor}"/>
+                <attribute name="Implementation-Title" value="${ivy.organisation}.${ivy.module}"/>
+                <attribute name="Implementation-Version"
+                           value="${ivy.new.revision}-${DSTAMP}${TSTAMP}"/>
+                <attribute name="Implementation-Vendor" value="${ivy.organisation}"/>
+            </section>
+        </manifest>
+    </target>
+
+</project>

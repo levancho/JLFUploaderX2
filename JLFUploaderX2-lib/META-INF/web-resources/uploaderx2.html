@@ -1,0 +1,82 @@
+<style>
+        .xspeed {
+            font-size: smaller;
+        }
+    </style>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header ">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Large File Uploader</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-8">Please Select File: <input id="fileSelection" type="file" class="filestyle" data-input="false"></div>
+                    <div class="col-md-1"></div>
+                </div>
+                    <div class="row">
+
+                        <div id="filesPanel" class="panel panel-info" style="margin-top: 10px">
+                            <div class="panel-heading">
+                                <h3 class="panel-title">File List</h3>
+                            </div>
+                            <div class="panel-body">
+                                <div class="container-fluid" id="fileList">
+
+                                    <!--<div class="row">-->
+                                        <!--<div class="col-md-5">-->
+                                            <!--<div>ABC.txt</div>-->
+                                            <!--<div class="progress" id="uploadProgress">-->
+                                                <!--<div class="progress-bar" data-transitiongoal="75" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >-->
+                                                    <!--0%-->
+                                                <!--</div>-->
+                                            <!--</div>-->
+
+                                        <!--</div>-->
+                                        <!--<div class="col-md-5">-->
+                                            <!--<div>10kb/sec</div>-->
+                                            <!--<button  style="padding: 0 5px" type="button" class="btn btn-info">Pause</button> <button   style="padding: 0 5px" type="button" class="btn btn-danger">Cancel</button></div>-->
+                                    <!--</div>-->
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="pauseAll"   type="button" class="btn btn-info">Pause All</button>
+                <button id="resumeAll"   type="button" class="btn btn-success">Resume All</button>
+                <button id="cancelAll"   type="button" class="btn btn-danger">Cancel All</button>
+            </div>
+        </div>
+    </div>
+</div></div>
+
+</body>
+
+<script id="file-item" type="text/x-handlebars-template">
+    <div class="row" id="xrow_{{xid}}">
+        <div class="col-md-5">
+            <div><span class="label label-warning" id="info_{{xid}}"></span>{{xfileName}}</div>
+            <div class="progress" id="{{xid}}">
+                <div class="progress-bar" data-transitiongoal="75" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" >
+                    0%
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-5">
+            <div class="xspeed" id="stats_{{xid}}"  >...</div>
+            <button  id="pause_{{xid}}" style="padding: 0 5px" type="button" class="btn btn-info">Pause</button>
+            <button  id="resume_{{xid}}" style="padding: 0 5px" type="button" disabled="disabled" class="btn btn-success">Resume</button>
+            <button  id="cancel_{{xid}}"   style="padding: 0 5px" type="button" class="btn btn-danger">Cancel</button></div>
+            <span id="select_{{xid}}" class="label label-danger"></span>
+    </div>
+</script>
