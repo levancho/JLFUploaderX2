@@ -70,7 +70,6 @@
     <import file="${dir.builder.conf}/resources-updates.xml"/>
     <import file="${dir.builder.conf}/jacoco-coverage.xml"/>
     <import file="${dir.builder.conf}/sonar.xml"/>
-    <import file="${dir.builder.conf}/ui.xml"/>
 
     <!-- Task Definitions -->
     <taskdef resource="net/sf/antcontrib/antcontrib.properties">
@@ -464,29 +463,7 @@
 
 
     <target name="gen-file-x2" description="generate prop file in user home [${user.home}] directory">
-        <available file="${user.home}/local.properties"
-                   property="local.property.exists" value="true" />
-
-        <if>
-            <isset property="local.property.exists"  />
-            <then>
-                <echo message="file ${user.home}/local.properties  already exists " />
-            </then>
-            <else>
-                <echo message="# IMPORTANT for windows O.SS use double slass for paths \\"  file="${user.home}/local.properties" />
-
-                <propertyfile
-                        file="${user.home}/local.properties"
-                        comment="Setting important system procedure variable to 100">
-                    <!--<entry key="build.env"    value="dev"/>-->
-                    <entry key="flex.debug"    value="false"/>
-                    <entry key="FLEX_HOME" value="YOUR_FLEX_HOME_LOCATION_HERE"/>
-                    <entry key="shared.user" value="YOUR_SHARED_USER_KEY"/>
-                    <entry key="shared.token" value="YOUR_SHARED_TOKEN"/>
-                    <entry key="builder.dir" value="LOCATION_OF_BUILDER_GIT_PROJECT/ant/build-confx2"/>
-                </propertyfile>
-            </else>
-        </if>
+    
     </target>
 
 </project>
